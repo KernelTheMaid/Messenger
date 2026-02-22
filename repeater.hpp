@@ -1,9 +1,10 @@
+#pragma once
 #include <iostream>
 #include <thread>
 #include <vector>
 #include <map>
 #include <mutex>
-#include <cstring>
+#include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -12,44 +13,32 @@
 class ChatRelay {
 private:
     SOCKET listener;
-    std::map<SOCKET, std::string> clients;  // сокет -> имя пользователя
+    std::map<SOCKET, std::string> clients;
     std::mutex clientsMutex;
     bool isRunning = true;
 
 public:
     bool start(unsigned short port) {
         WSADATA wsaData;
-        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            std::cerr << "WSAStartup failed\n";
-            return false;
-        }
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) return false;
 
         listener = socket(AF_INET, SOCK_STREAM, 0);
-        if (listener == INVALID_SOCKET) {
-            std::cerr << "Socket creation failed\n";
-            return false;
-        }
+        if (listener == INVALID_SOCKET) return false;
 
         sockaddr_in addr = {};
         addr.sin_family = AF_INET;
         addr.sin_addr.s_addr = INADDR_ANY;
         addr.sin_port = htons(port);
 
-        if (bind(listener, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
-            std::cerr << "Bind failed\n";
-            return false;
-        }
+        if (bind(listener, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) return false;
 
         listen(listener, SOMAXCONN);
-        std::cout << "Relay listening on port " << port << "\n";
+        std::cout << "[Relay] Server active on port " << port << std::endl;
 
-        // Поток для принятия новых клиентов
         std::thread acceptThread(&ChatRelay::acceptClients, this);
-
-        // Основной цикл обработки сообщений
         receiveLoop();
 
-        acceptThread.join();
+        if (acceptThread.joinable()) acceptThread.join();
         closesocket(listener);
         WSACleanup();
         return true;
@@ -63,26 +52,16 @@ private:
             SOCKET client = accept(listener, (sockaddr*)&clientAddr, &clientAddrLen);
 
             if (client != INVALID_SOCKET) {
-                std::cout << "New connection from " << inet_ntoa(clientAddr.sin_addr) << "\n";
-
-                // Получаем имя клиента (первое сообщение)
                 char buffer[256];
                 int bytes = recv(client, buffer, sizeof(buffer) - 1, 0);
                 if (bytes > 0) {
                     buffer[bytes] = '\0';
                     std::string username(buffer);
-
                     {
                         std::lock_guard<std::mutex> lock(clientsMutex);
                         clients[client] = username;
                     }
-
-                    std::cout << "User " << username << " joined\n";
-
-                    // Уведомляем всех о новом пользователе
-                    broadcast("System", username + " joined the chat");
-
-                    // Переводим сокет в неблокирующий режим для приёма
+                    broadcast("System", username + " joined the relay");
                     u_long mode = 1;
                     ioctlsocket(client, FIONBIO, &mode);
                 } else {
@@ -95,23 +74,16 @@ private:
     void receiveLoop() {
         while (isRunning) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
             std::lock_guard<std::mutex> lock(clientsMutex);
             for (auto it = clients.begin(); it != clients.end(); ) {
-                SOCKET sock = it->first;
                 char buffer[4096];
-                int bytes = recv(sock, buffer, sizeof(buffer) - 1, 0);
-
+                int bytes = recv(it->first, buffer, sizeof(buffer) - 1, 0);
                 if (bytes > 0) {
                     buffer[bytes] = '\0';
-                    std::string message(buffer);
-                    broadcast(it->second, message);
+                    broadcast(it->second, std::string(buffer));
                     ++it;
                 } else if (bytes == 0 || (bytes == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK)) {
-                    // Клиент отключился
-                    std::cout << "User " << it->second << " disconnected\n";
-                    broadcast("System", it->second + " left the chat");
-                    closesocket(sock);
+                    closesocket(it->first);
                     it = clients.erase(it);
                 } else {
                     ++it;
@@ -122,9 +94,8 @@ private:
 
     void broadcast(const std::string& sender, const std::string& message) {
         std::string fullMessage = sender + ": " + message;
-        std::lock_guard<std::mutex> lock(clientsMutex);
         for (auto& client : clients) {
-            send(client.first, fullMessage.c_str(), fullMessage.size(), 0);
+            send(client.first, fullMessage.c_str(), (int)fullMessage.size(), 0);
         }
     }
 };

@@ -15,6 +15,7 @@
                 "tcp.cpp",
                 "bluetooth.cpp",
                 "p2p.cpp",
+                "repeater.cpp",
                 "/I",
                 "Libraries\\SFML-3.0.2\\include",
                 "/link",

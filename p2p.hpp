@@ -37,7 +37,13 @@ private:
     unsigned short listeningPort;
     sf::TcpListener listener;
     
+    // Прямые P2P соединения
     std::map<std::string, std::shared_ptr<sf::TcpSocket>> peers;
+    
+    // Соединение с ретранслятором
+    sf::TcpSocket relaySocket;
+    bool connectedToRelay = false;
+
     std::vector<PeerInfo> peerList;
     std::queue<ChatMessage> messageQueue;
     

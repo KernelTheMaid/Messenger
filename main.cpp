@@ -3,12 +3,14 @@
 #include "tcp.hpp"
 #include "bluetooth.hpp"
 #include "p2p.hpp"
+#include "repeater.hpp"
 
-int main() {
+int main()
+{
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     char choice;
-    
+
     std::cout << "=== Chat Program ===\n";
     std::cout << "Select chat type:\n";
     std::cout << "1. TCP Chat\n";
@@ -17,41 +19,56 @@ int main() {
     std::cout << "Enter choice (1, 2 or 3): ";
     std::cin >> choice;
     std::cin.ignore();
-    
-    if (choice == '1') {
+
+    if (choice == '1')
+    {
         TCPSocketHandler tcp;
         tcp.run();
     }
-    else if (choice == '2') {
-        BluetoothChat bt; 
+    else if (choice == '2')
+    {
+        BluetoothChat bt;
         bt.run();
     }
-    else if (choice == '3') {
+    else if (choice == '3')
+    {
         std::string username;
         unsigned short port = 0;
-        
+
         std::cout << "Enter your username: ";
         std::getline(std::cin, username);
-        
+
         std::cout << "Enter listening port (0 for auto): ";
         std::string portStr;
         std::getline(std::cin, portStr);
-        
-        if (!portStr.empty()) {
+
+        if (!portStr.empty())
+        {
             port = std::stoi(portStr);
         }
+
+        ChatRelay relay;
+        unsigned short relayPort = 8888;
+
+        std::thread relayThread([&relay, relayPort](){
+            relay.start(relayPort);
+        });
+        relayThread.detach();
+
+        std::cout << ">>> Background Relay started on port " << relayPort << " <<<\n";
         
         P2PHandler p2pChat(username, port);
         p2pChat.run();
     }
-    else {
+    else
+    {
         std::cout << "Invalid choice!\n";
     }
-    
+
     std::cout << "Program ended.\n";
-    
+
     std::cout << "Press any key to exit...";
     _getch();
-    
+
     return 0;
 }
