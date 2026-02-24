@@ -71,7 +71,7 @@ void P2PHandler::acceptConnections()
                     }
                     sf::Packet response;
                     response << username;
-                    peerSocket->send(response);
+                    (void)peerSocket->send(response);
 
                     std::cout << "\n>>> " << peerName << " connected directly!\n> ";
                     std::cout.flush();
@@ -195,14 +195,14 @@ void P2PHandler::sendMessage(const std::string &message)
         std::lock_guard<std::mutex> lock(peersMutex);
         for (auto &peer : peers)
         {
-            peer.second->send(packet);
+            (void)peer.second->send(packet);
         }
     }
 
     // Отправка через ретранслятор
     if (connectedToRelay)
     {
-        relaySocket.send(message.c_str(), message.size());
+        (void)relaySocket.send(message.c_str(), message.size());
     }
 }
 
@@ -259,7 +259,7 @@ void P2PHandler::chatLoop()
                     {
                         connectedToRelay = true;
                         relaySocket.setBlocking(false);
-                        relaySocket.send(username.c_str(), username.size()); // Регистрация имени
+                        (void)relaySocket.send(username.c_str(), username.size()); // Регистрация имени
                         std::cout << "Connected to Relay server!\n";
                     }
                     else

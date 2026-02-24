@@ -4,6 +4,7 @@
 #include "bluetooth.hpp"
 #include "p2p.hpp"
 #include "repeater.hpp"
+#include "upnp.hpp"
 
 int main()
 {
@@ -47,10 +48,24 @@ int main()
             port = std::stoi(portStr);
         }
 
-        ChatRelay relay;
         unsigned short relayPort = 8888;
+        auto localIpOpt = sf::IpAddress::getLocalAddress();
+        
+        if (localIpOpt.has_value()) {
+            std::string localIp = localIpOpt.value().toString();
+            std::cout << "\n[UPnP] Local IP detected: " << localIp << "\n";
+            std::cout << "[UPnP] Attempting to open port " << relayPort << " on your router...\n";
+            
+            if (RouterManager::forwardPort(relayPort, localIp)) {
+                std::cout << "[UPnP] SUCCESS: Router successfully forwarded port " << relayPort << "!\n";
+            } else {
+                std::cout << "[UPnP] FAILED: UPnP is disabled on your router or not supported.\n";
+            }
+        }
 
-        std::thread relayThread([&relay, relayPort](){
+        static ChatRelay relay;
+
+        std::thread relayThread([relayPort](){
             relay.start(relayPort);
         });
         relayThread.detach();
