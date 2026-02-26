@@ -3,6 +3,23 @@
 #include <conio.h>
 #include <sstream>
 #include <optional>
+#include <SFML/Network.hpp>
+#include <string>
+
+std::string getPublicIp() {
+    sf::Http http("http://api.ipify.org");
+    sf::Http::Request request;
+    request.setMethod(sf::Http::Request::Method::Get);
+    request.setUri("/");
+
+    sf::Http::Response response = http.sendRequest(request);
+
+    if (response.getStatus() == sf::Http::Response::Status::Ok) {
+        return response.getBody();
+    } else {
+        return "0.0.0.0 (Error)";
+    }
+}
 
 struct Peer {
     std::string username;
@@ -77,8 +94,23 @@ void P2PHandler::broadcastMessage(const std::string& text) {
 void P2PHandler::run() {
     receiveThread = std::thread(&P2PHandler::receiveLoop, this);
 
-    std::cout << "P2P UDP Chat started on port " << listeningPort << "\n";
-    std::cout << "Commands: \n  add <ip> <port> - start hole punching\n  exit\n\n";
+    std::cout << "\n=== P2P UDP Chat Started ===\n";
+    std::cout << "Your local username: " << username << "\n";
+    
+    // Автоматическое получение внешнего IP
+    std::cout << "[System] Fetching your public IP... ";
+    std::string publicIp = getPublicIp();
+    std::cout << "Done!\n";
+    
+    std::cout << "-------------------------------------------\n";
+    std::cout << "SHARE THIS WITH YOUR FRIEND:\n";
+    std::cout << "IP:   " << publicIp << "\n";
+    std::cout << "PORT: " << listeningPort << "\n";
+    std::cout << "-------------------------------------------\n\n";
+
+    std::cout << "Commands:\n";
+    std::cout << "  add <ip> <port> - Start punching hole to peer\n";
+    std::cout << "  exit            - Quit chat\n\n> ";
 
     std::string input;
     while (isRunning) {
