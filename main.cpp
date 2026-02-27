@@ -1,10 +1,8 @@
 #include <iostream>
 #include <conio.h>
-#include "tcp.hpp"
 #include "bluetooth.hpp"
 #include "p2p.hpp"
-#include "repeater.hpp"
-#include "upnp.hpp"
+
 
 int main()
 {
@@ -14,25 +12,13 @@ int main()
 
     std::cout << "=== Chat Program ===\n";
     std::cout << "Select chat type:\n";
-    std::cout << "1. TCP Chat\n";
-    std::cout << "2. Bluetooth Chat\n";
-    std::cout << "3. P2P Chat\n";
-    std::cout << "Enter choice (1, 2 or 3): ";
+    std::cout << "1. P2P Chat\n";
+    std::cout << "2. Bluetooth Chat(beta test)\n";
+    std::cout << "Enter choice (1 or 2): ";
     std::cin >> choice;
     std::cin.ignore();
 
     if (choice == '1')
-    {
-        TCPSocketHandler tcp;
-        tcp.run();
-    }
-    else if (choice == '2')
-    {
-        BluetoothChat bt;
-        bt.run();
-    }
-
-    else if (choice == '3')
     {
         std::string username;
         unsigned short port = 0;
@@ -48,6 +34,11 @@ int main()
         
         P2PHandler p2pChat(username, port);
         p2pChat.run();
+    }
+    else if (choice == '2')
+    {
+        BluetoothChat bt;
+        bt.run();
     }
     else
     {
