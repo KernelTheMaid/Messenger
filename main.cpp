@@ -31,6 +31,7 @@ int main()
         BluetoothChat bt;
         bt.run();
     }
+
     else if (choice == '3')
     {
         std::string username;
@@ -43,34 +44,7 @@ int main()
         std::string portStr;
         std::getline(std::cin, portStr);
 
-        if (!portStr.empty())
-        {
-            port = std::stoi(portStr);
-        }
-
-        unsigned short relayPort = 8888;
-        auto localIpOpt = sf::IpAddress::getLocalAddress();
-        
-        if (localIpOpt.has_value()) {
-            std::string localIp = localIpOpt.value().toString();
-            std::cout << "\n[UPnP] Local IP detected: " << localIp << "\n";
-            std::cout << "[UPnP] Attempting to open port " << relayPort << " on your router...\n";
-            
-            if (RouterManager::forwardPort(relayPort, localIp)) {
-                std::cout << "[UPnP] SUCCESS: Router successfully forwarded port " << relayPort << "!\n";
-            } else {
-                std::cout << "[UPnP] FAILED: UPnP is disabled on your router or not supported.\n";
-            }
-        }
-
-        static ChatRelay relay;
-
-        std::thread relayThread([relayPort](){
-            relay.start(relayPort);
-        });
-        relayThread.detach();
-
-        std::cout << ">>> Background Relay started on port " << relayPort << " <<<\n";
+        if (!portStr.empty()) port = std::stoi(portStr);
         
         P2PHandler p2pChat(username, port);
         p2pChat.run();
