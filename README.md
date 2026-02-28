@@ -32,7 +32,7 @@ A high-performance **P2P & Bluetooth console messenger** written in C++17. This 
 | **Distance** | Worldwide  | Short Range (~10m)  |
 | **Internet Required** | Yes (Direct) | No (Offline)  |
 | **NAT Bypass** | Automatic (STUN) | N/A |
-| **Platform** | Windows Only | Windows Only 🪟 |
+| **Platform** | Windows Only | Windows Only |
 
 ---
 
