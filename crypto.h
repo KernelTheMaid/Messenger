@@ -16,12 +16,12 @@ void antidebug(){
         	exit(1);
     	}
 	#endif
-	#ifdef defined(__linux__)
+	#ifdef __linux__
 	if(ptrace(PTRACE_TRACEME,0,1,0)<0){
 		exit(1);
 	}
 	#endif
-	#ifdef defined(__FreeBSD__)
+	#ifdef __FreeBSD__
 	if(ptrace(PT_TRACE_ME,0,0,0)<0){
 		exit(1);
 	}
