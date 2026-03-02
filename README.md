@@ -2,10 +2,10 @@
 # C++ Decentralized Messenger
 <p align=center>
 <a href="#Linux"><img src="https://img.shields.io/badge/OS-Linux-darkgreen">
-<a href="#FreeBSD"><img src="ttps://img.shields.io/badge/OS-FreeBSD-green">
 <a href="#Win"><img src="https://img.shields.io/badge/OS-Windows-yellow">
 <a href="#OpenBSD"><img src="https://img.shields.io/badge/OS-OpenBSD-red">
 <a href="#NetBSD"><img src="https://img.shields.io/badge/OS-NetBSD-red">
+<a href="#FreeBSD"><img src="ttps://img.shields.io/badge/OS-FreeBSD-green">
 </p>
 A high-performance **P2P & Bluetooth console messenger** written in C++17. This project aims to create a fully autonomous communication tool that works anywhere — with or without a central internet server.
 
