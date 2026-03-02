@@ -1,5 +1,12 @@
-# C++ Decentralized Messenger
 
+# C++ Decentralized Messenger
+<p align=center>
+<a href="#Linux"><img src="https://img.shields.io/badge/OS-Linux-darkgreen">
+<a href="#FreeBSD"><img src="ttps://img.shields.io/badge/OS-FreeBSD-green">
+<a href="#Win"><img src="https://img.shields.io/badge/OS-Windows-yellow">
+<a href="#OpenBSD"><img src="https://img.shields.io/badge/OS-OpenBSD-red">
+<a href="#NetBSD"><img src="https://img.shields.io/badge/OS-NetBSD-red">
+</p>
 A high-performance **P2P & Bluetooth console messenger** written in C++17. This project aims to create a fully autonomous communication tool that works anywhere — with or without a central internet server.
 
 ---
@@ -38,11 +45,12 @@ A high-performance **P2P & Bluetooth console messenger** written in C++17. This 
 
 ## Requirements
 
-- **OS**: Windows 10 / 11
-- **Compiler**: MSVC (cl.exe) from Visual Studio 2022 / Build Tools
+- **OS**: Windows 10 / 11, GNU/Linux, FreeBSD
+- **Compiler**: MSVC (cl.exe) from Visual Studio 2022 / Build Tools / clang / gcc
 - **Libraries**: 
-  - **SFML 3.0.2** (included in `/Libraries`)
-  - **Windows SDK** (Bluetooth + Winsock)
+  - **SFML 2.x.x**
+  - **Windows SDK** (Bluetooth + Winsock, for windows build)
+  
 
 ### Linked Libraries
 `sfml-network.lib`, `sfml-system.lib`, `ws2_32.lib`, `bthprops.lib`, `user32.lib`, `advapi32.lib`
@@ -56,9 +64,21 @@ A high-performance **P2P & Bluetooth console messenger** written in C++17. This 
 2. Ensure MSVC environment is active.
 3. Press `Ctrl + Shift + B` (uses the pre-configured `tasks.json`).
 
+### Quick Build (GNU Make)
+FreeBSD:
+```sh
+#Installing Requirements
+gmake all
+```
+GNU/Linux:
+```sh
+make all
+```
+
 ### Manual Compilation
 ```cmd
 cl /EHsc /std:c++17 /utf-8 /Zi /Fe:messenger.exe main.cpp bluetooth.cpp p2p.cpp ^
 /I Libraries\SFML-3.0.2\include ^
 /link /LIBPATH:Libraries\SFML-3.0.2\lib ^
 sfml-network.lib sfml-system.lib ws2_32.lib bthprops.lib user32.lib advapi32.lib
+```
